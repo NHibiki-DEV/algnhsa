@@ -95,6 +95,11 @@ func newHTTPRequest(event lambdaRequest) (*http.Request, error) {
 	// Handle base64 encoded body.
 	var body io.Reader = strings.NewReader(event.Body)
 	if event.IsBase64Encoded {
+		// add padding for non-standard base64 encoding
+		if i := len(event.Body) % 4; i != 0 {
+			s := event.Body + strings.Repeat("=", 4-i)
+			body = strings.NewReader(s)
+		}
 		body = base64.NewDecoder(base64.StdEncoding, body)
 	}
 
